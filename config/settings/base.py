@@ -16,7 +16,7 @@ if os.getenv("RENDER") == "true":
     ALLOWED_HOSTS = ["*"]
 
 # ---------------------------------------------------------------------------
-# Applications
+# Applications h
 # ---------------------------------------------------------------------------
 DJANGO_APPS = [
     "django.contrib.admin",
