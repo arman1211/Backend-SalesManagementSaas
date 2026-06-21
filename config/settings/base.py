@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -51,6 +52,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # ---------------------------------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -84,14 +86,33 @@ TEMPLATES = [
 ]
 
 # ---------------------------------------------------------------------------
-# Database
+# Database — priority: USE_SQLITE=True → SQLite | DATABASE_URL → Neon/Postgres | DB_* vars
 # ---------------------------------------------------------------------------
-if config("USE_SQLITE", default=True, cast=bool):
+def _postgres_from_url(url: str):
+    return dj_database_url.parse(
+        url,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+
+
+_database_url = config("DATABASE_URL", default="")
+_use_sqlite = config(
+    "USE_SQLITE",
+    default=not bool(_database_url),
+    cast=bool,
+)
+
+if _use_sqlite:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
         }
+    }
+elif _database_url:
+    DATABASES = {
+        "default": _postgres_from_url(_database_url),
     }
 else:
     DATABASES = {
