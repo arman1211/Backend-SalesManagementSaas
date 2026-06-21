@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">{% include "pdf/base_styles.html" %}</head>
+<body>
+
+  {% include "pdf/partials/document_header.html" with header_meta_rows=header_meta_rows %}
+
+  <table class="meta-table">
+    <tr>
+      <td>
+        <div class="label">Customer</div>
+        <div class="customer-name">{{ customer.name }}</div>
+        {% if customer.trn %}TRN: {{ customer.trn }}{% endif %}
+      </td>
+      <td class="meta-right">
+        {% if customer_lpo %}<div class="meta-line"><span class="lbl">LPO: </span>{{ customer_lpo }}</div>{% endif %}
+        {% if site_reference %}<div class="meta-line"><span class="lbl">Site: </span>{{ site_reference }}</div>{% endif %}
+      </td>
+    </tr>
+  </table>
+
+  {% if reason %}
+  <div class="section-title">Reason</div>
+  <div class="text-block">{{ reason }}</div>
+  {% endif %}
+
+  {% include "pdf/partials/line_items_table.html" %}
+
+  <table class="totals-wrap">
+    <tr>
+      <td class="totals-spacer"></td>
+      <td>
+        <table class="totals">
+          <tr><td>Subtotal</td><td class="num">AED {{ subtotal }}</td></tr>
+          <tr><td>VAT ({{ vat_rate_percent }}%)</td><td class="num">AED {{ vat_amount }}</td></tr>
+          <tr class="grand"><td>Credit Total</td><td class="num">AED {{ grand_total }}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  {% if notes %}
+  <div class="section-title">Notes</div>
+  <div class="text-block">{{ notes }}</div>
+  {% endif %}
+
+  <table class="signature-table">
+    <tr>
+      <td class="spacer"></td>
+      <td class="spacer"></td>
+      <td>Authorized Signature</td>
+    </tr>
+  </table>
+
+</body>
+</html>

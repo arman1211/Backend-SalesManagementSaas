@@ -1,0 +1,10 @@
+<div class="footer">
+  {% if entity.bank_name %}
+  <strong>Bank Details</strong><br>
+  {{ entity.bank_name }}{% if entity.bank_account_name %} &mdash; {{ entity.bank_account_name }}{% endif %}
+  {% if entity.bank_account_number %}<br>Account: {{ entity.bank_account_number }}{% endif %}
+  {% if entity.bank_iban %}<br>IBAN: {{ entity.bank_iban }}{% endif %}
+  <br><br>
+  {% endif %}
+  {% if footer_note %}{{ footer_note }}{% endif %}
+</div>

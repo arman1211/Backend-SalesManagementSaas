@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">{% include "pdf/base_styles.html" %}</head>
+<body>
+
+  {% include "pdf/partials/document_header.html" with header_meta_rows=header_meta_rows %}
+
+  <table class="meta-table">
+    <tr>
+      <td>
+        <div class="label">To</div>
+        <div class="customer-name">{{ customer.name }}</div>
+        {% if attention_person %}Attn: {{ attention_person }}<br>{% endif %}
+        {% if customer.address_line_1 %}{{ customer.address_line_1 }}{% if customer.address_line_2 %}, {{ customer.address_line_2 }}{% endif %}<br>{% endif %}
+        {% if customer.city or customer.country %}{{ customer.city }}{% if customer.city and customer.country %}, {% endif %}{{ customer.country }}{% endif %}
+      </td>
+      <td class="meta-right">
+        {% if customer_lpo %}<div class="meta-line"><span class="lbl">LPO: </span>{{ customer_lpo }}</div>{% endif %}
+        {% if site_reference %}<div class="meta-line"><span class="lbl">Site: </span>{{ site_reference }}</div>{% endif %}
+        <div class="meta-line"><span class="lbl">Payment Terms: </span>{{ payment_terms_days }} days</div>
+      </td>
+    </tr>
+  </table>
+
+  {% include "pdf/partials/line_items_table.html" %}
+
+  <table class="totals-wrap">
+    <tr>
+      <td class="totals-spacer"></td>
+      <td>
+        <table class="totals">
+          <tr><td>Subtotal</td><td class="num">AED {{ subtotal }}</td></tr>
+          {% if discount_amount != "0.00" %}
+          <tr><td>Discount</td><td class="num">AED {{ discount_amount }}</td></tr>
+          {% endif %}
+          <tr><td>Net Total</td><td class="num">AED {{ net_total }}</td></tr>
+          <tr><td>VAT ({{ vat_rate_percent }}%)</td><td class="num">AED {{ vat_amount }}</td></tr>
+          <tr class="grand"><td>Grand Total</td><td class="num">AED {{ grand_total }}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  {% if terms_and_conditions %}
+  <div class="section-title">Terms &amp; Conditions</div>
+  <div class="text-block">{{ terms_and_conditions }}</div>
+  {% endif %}
+
+  {% if notes %}
+  <div class="section-title">Notes</div>
+  <div class="text-block">{{ notes }}</div>
+  {% endif %}
+
+  {% include "pdf/partials/document_footer.html" with footer_note="Thank you for your business." %}
+
+  <table class="signature-table">
+    <tr>
+      <td>Customer Acceptance</td>
+      <td class="spacer"></td>
+      <td>Authorized Signature</td>
+    </tr>
+  </table>
+
+</body>
+</html>

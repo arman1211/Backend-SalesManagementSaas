@@ -1,0 +1,30 @@
+<table class="header-table">
+  <tr>
+    <td class="header-left">
+      {% if entity.logo_data_uri %}
+      <img class="logo" src="{{ entity.logo_data_uri }}" alt="Logo">
+      {% endif %}
+      <div class="company-name">{{ entity.company_name }}</div>
+      <div class="company-detail">
+        {% if entity.address_line_1 %}{{ entity.address_line_1 }}{% if entity.address_line_2 %}, {{ entity.address_line_2 }}{% endif %}<br>{% endif %}
+        {% if entity.city or entity.country %}{{ entity.city }}{% if entity.city and entity.country %}, {% endif %}{{ entity.country }}<br>{% endif %}
+        {% if entity.trn %}TRN: {{ entity.trn }}{% if entity.phone %} &nbsp;&bull;&nbsp; {% endif %}{% endif %}
+        {% if entity.phone %}Tel: {{ entity.phone }}{% if entity.email %} &nbsp;&bull;&nbsp; {% endif %}{% endif %}
+        {% if entity.email %}{{ entity.email }}{% endif %}
+      </div>
+    </td>
+    <td class="header-right">
+      <div class="doc-title">{{ title }}</div>
+      {% if header_meta_rows %}
+      <table class="doc-meta-table">
+        {% for row in header_meta_rows %}
+        <tr>
+          <td class="meta-label">{{ row.label }}</td>
+          <td class="meta-value">{{ row.value }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+    </td>
+  </tr>
+</table>

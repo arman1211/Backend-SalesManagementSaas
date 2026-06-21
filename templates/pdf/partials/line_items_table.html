@@ -1,0 +1,22 @@
+<table class="items-table">
+  <thead>
+    <tr>
+      <th style="width:5%">#</th>
+      <th>Description</th>
+      <th class="num" style="width:14%">Unit Price</th>
+      <th class="num" style="width:8%">Qty</th>
+      <th class="num" style="width:14%">Amount (AED)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in line_items %}
+    <tr>
+      <td class="serial">{{ item.serial_number }}</td>
+      <td class="text-block">{{ item.description }}</td>
+      <td class="num">{{ item.unit_price }}</td>
+      <td class="num">{{ item.quantity }}</td>
+      <td class="num">{{ item.line_total }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

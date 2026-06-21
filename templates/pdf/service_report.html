@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">{% include "pdf/base_styles.html" %}</head>
+<body>
+
+  {% include "pdf/partials/document_header.html" with header_meta_rows=header_meta_rows %}
+
+  <table class="meta-table">
+    <tr>
+      <td>
+        <div class="label">Customer</div>
+        <div class="customer-name">{{ customer.name }}</div>
+        {% if attention_person %}Attn: {{ attention_person }}<br>{% endif %}
+        {% if customer.address_line_1 %}{{ customer.address_line_1 }}{% endif %}
+      </td>
+      <td class="meta-right">
+        {% if customer_lpo %}<div class="meta-line"><span class="lbl">LPO: </span>{{ customer_lpo }}</div>{% endif %}
+        {% if drn %}<div class="meta-line"><span class="lbl">DRN: </span>{{ drn }}</div>{% endif %}
+        {% if quotation_reference %}<div class="meta-line"><span class="lbl">QTN Ref: </span>{{ quotation_reference }}</div>{% endif %}
+        {% if technician_name %}<div class="meta-line"><span class="lbl">Technician: </span>{{ technician_name }}</div>{% endif %}
+      </td>
+    </tr>
+  </table>
+
+  {% if equipment_details or equipment_id or site_location %}
+  <div class="section-title">Equipment &amp; Site</div>
+  <div class="text-block">
+    {% if equipment_details %}Equipment: {{ equipment_details }}
+    {% endif %}{% if equipment_id %}{% if equipment_details %}&#10;{% endif %}Equipment ID: {{ equipment_id }}{% endif %}
+    {% if site_location %}{% if equipment_details or equipment_id %}&#10;{% endif %}Site: {{ site_location }}{% endif %}
+  </div>
+  {% endif %}
+
+  {% if work_description %}
+  <div class="section-title">Work Performed</div>
+  <div class="text-block">{{ work_description }}</div>
+  {% endif %}
+
+  <table class="meta-table">
+    <tr>
+      <td>
+        <div class="meta-line"><span class="lbl">Work Start: </span>{{ work_start_date }}</div>
+        <div class="meta-line"><span class="lbl">Completion: </span>{{ completion_date }}</div>
+      </td>
+      <td class="meta-right">
+        <div class="meta-line"><span class="lbl">Status: </span>{{ job_status }}</div>
+      </td>
+    </tr>
+  </table>
+
+  {% if recommendations %}
+  <div class="section-title">Recommendations</div>
+  <div class="text-block">{{ recommendations }}</div>
+  {% endif %}
+
+  {% if notes %}
+  <div class="section-title">Notes</div>
+  <div class="text-block">{{ notes }}</div>
+  {% endif %}
+
+  {% include "pdf/partials/document_footer.html" %}
+
+  <table class="signature-table">
+    <tr>
+      <td>Technician Signature</td>
+      <td class="spacer"></td>
+      <td>Customer Receiver</td>
+    </tr>
+  </table>
+
+</body>
+</html>

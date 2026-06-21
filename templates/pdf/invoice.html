@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">{% include "pdf/base_styles.html" %}</head>
+<body>
+
+  {% include "pdf/partials/document_header.html" with header_meta_rows=header_meta_rows %}
+
+  <table class="meta-table">
+    <tr>
+      <td>
+        <div class="label">Bill To</div>
+        <div class="customer-name">{{ customer.name }}</div>
+        {% if customer.address_line_1 %}{{ customer.address_line_1 }}{% if customer.address_line_2 %}, {{ customer.address_line_2 }}{% endif %}<br>{% endif %}
+        {% if customer.city or customer.country %}{{ customer.city }}{% if customer.city and customer.country %}, {% endif %}{{ customer.country }}<br>{% endif %}
+        {% if customer.trn %}TRN: {{ customer.trn }}<br>{% endif %}
+        {% if customer.phone %}{{ customer.phone }}{% endif %}
+      </td>
+      <td class="meta-right">
+        {% if customer_lpo %}<div class="meta-line"><span class="lbl">LPO: </span>{{ customer_lpo }}</div>{% endif %}
+        {% if drn %}<div class="meta-line"><span class="lbl">DRN: </span>{{ drn }}</div>{% endif %}
+        {% if quotation_reference %}<div class="meta-line"><span class="lbl">Quotation Ref: </span>{{ quotation_reference }}</div>{% endif %}
+        <div class="meta-line"><span class="lbl">Payment Terms: </span>{{ payment_terms_days }} days</div>
+        {% if exceed_days and exceed_days > 0 %}
+        <div class="meta-line"><span class="lbl">Days Overdue: </span>{{ exceed_days }}</div>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  {% include "pdf/partials/line_items_table.html" %}
+
+  <table class="totals-wrap">
+    <tr>
+      <td class="totals-spacer"></td>
+      <td>
+        <table class="totals">
+          <tr><td>Subtotal</td><td class="num">AED {{ subtotal }}</td></tr>
+          {% if discount_amount != "0.00" %}
+          <tr><td>Discount</td><td class="num">AED {{ discount_amount }}</td></tr>
+          {% endif %}
+          <tr><td>Net Total</td><td class="num">AED {{ net_total }}</td></tr>
+          <tr><td>VAT ({{ vat_rate_percent }}%)</td><td class="num">AED {{ vat_amount }}</td></tr>
+          <tr class="grand"><td>Grand Total</td><td class="num">AED {{ grand_total }}</td></tr>
+          <tr><td>Retention (10%)</td><td class="num">AED {{ retention_amount }}</td></tr>
+          {% if amount_received and amount_received != "0.00" %}
+          <tr><td>Amount Received</td><td class="num">AED {{ amount_received }}</td></tr>
+          {% endif %}
+          <tr class="emphasis"><td>Balance Due</td><td class="num">AED {{ balance_amount }}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  {% if payment_terms_text %}
+  <div class="section-title">Payment Terms</div>
+  <div class="text-block">{{ payment_terms_text }}</div>
+  {% endif %}
+
+  {% if notes %}
+  <div class="section-title">Notes</div>
+  <div class="text-block">{{ notes }}</div>
+  {% endif %}
+
+  {% include "pdf/partials/document_footer.html" with footer_note="Late payment charges may apply on overdue balances as per agreed terms." %}
+
+  <table class="signature-table">
+    <tr>
+      <td>Receiver's Signature</td>
+      <td class="spacer"></td>
+      <td>Authorized Signature</td>
+    </tr>
+  </table>
+
+</body>
+</html>
