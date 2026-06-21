@@ -4,6 +4,9 @@ from .base import *  # noqa: F403
 
 DEBUG = False
 
+# Temporary: accept any Host header (tighten before going live)
+ALLOWED_HOSTS = ["*"]  # noqa: F405
+
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
