@@ -89,11 +89,18 @@ TEMPLATES = [
 # Database — priority: USE_SQLITE=True → SQLite | DATABASE_URL → Neon/Postgres | DB_* vars
 # ---------------------------------------------------------------------------
 def _postgres_from_url(url: str):
-    return dj_database_url.parse(
+    is_pooled = "-pooler" in url
+    parsed = dj_database_url.parse(
         url,
-        conn_max_age=600,
-        conn_health_checks=True,
+        # PgBouncer pooler: no persistent connections (avoids SSL drops)
+        conn_max_age=0 if is_pooled else 600,
+        conn_health_checks=not is_pooled,
     )
+    if is_pooled:
+        parsed["DISABLE_SERVER_SIDE_CURSORS"] = True
+    options = parsed.setdefault("OPTIONS", {})
+    options.setdefault("sslmode", "require")
+    return parsed
 
 
 _database_url = config("DATABASE_URL", default="")
