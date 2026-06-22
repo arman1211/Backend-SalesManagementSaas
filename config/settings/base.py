@@ -42,6 +42,7 @@ LOCAL_APPS = [
     "apps.customers",
     "apps.quotations",
     "apps.service_reports",
+    "apps.warranty_certificates",
     "apps.invoices",
     "apps.credit_notes",
     "apps.payments",

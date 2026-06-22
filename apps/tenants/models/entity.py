@@ -26,10 +26,12 @@ class CompanyEntity(UUIDModel, TimeStampedModel):
     invoice_prefix = models.CharField(max_length=20, blank=True, default="INV")
     credit_note_prefix = models.CharField(max_length=20, blank=True, default="CN")
     service_report_prefix = models.CharField(max_length=20, blank=True, default="SR")
+    warranty_prefix = models.CharField(max_length=20, blank=True, default="WC")
     next_invoice_number = models.PositiveIntegerField(default=1)
     next_quotation_number = models.PositiveIntegerField(default=1)
     next_credit_note_number = models.PositiveIntegerField(default=1)
     next_service_report_number = models.PositiveIntegerField(default=1)
+    next_warranty_number = models.PositiveIntegerField(default=1)
 
     class Meta:
         ordering = ["name"]

@@ -86,6 +86,7 @@ class DocumentPDFService:
         "quotation": "pdf/quotation.html",
         "service_report": "pdf/service_report.html",
         "credit_note": "pdf/credit_note.html",
+        "warranty_certificate": "pdf/warranty_certificate.html",
     }
 
     @classmethod
@@ -226,4 +227,56 @@ class DocumentPDFService:
             "vat_amount": _format_money(credit_note.vat_amount),
             "grand_total": _format_money(credit_note.grand_total),
             "notes": credit_note.notes,
+        }
+
+    @staticmethod
+    def _context_warranty_certificate(certificate, tenant):
+        entity = certificate.entity
+        user = certificate.created_by
+        signatory_name = certificate.signatory_name or (user.full_name if user else "")
+        signatory_phone = certificate.signatory_phone or (user.phone if user else "")
+        signatory_email = certificate.signatory_email or (user.email if user else "")
+
+        item_rows = []
+        for item in certificate.items.all():
+            item_rows.append({
+                "serial_number": item.serial_number,
+                "product_name": item.product_name or "—",
+                "specification": item.specification or "—",
+                "identifier": item.identifier or "—",
+                "location": item.location or "—",
+                "site_reference": item.site_reference or "—",
+                "location_display": item.location_display or "—",
+            })
+
+        return {
+            "filename": f"Warranty-Certificate-{certificate.reference_number}.pdf",
+            "title": "Warranty Certificate",
+            "entity": _entity_context(entity, tenant),
+            "customer": _customer_context(certificate.customer),
+            "header_meta_rows": [
+                {"label": "Reference", "value": certificate.reference_number},
+                {"label": "Date", "value": _format_date(certificate.certificate_date)},
+                {"label": "Warranty", "value": f"{certificate.warranty_months} months"},
+            ],
+            "document_number": certificate.reference_number,
+            "document_date": _format_date(certificate.certificate_date),
+            "project_name": certificate.project_name,
+            "attention_person": certificate.attention_person,
+            "drn": certificate.drn,
+            "finishing_date": _format_date(certificate.finishing_date),
+            "warranty_end_date": _format_date(certificate.warranty_end_date),
+            "customer_lpo": certificate.customer_lpo,
+            "service_report_reference": certificate.service_report_reference,
+            "item_rows": item_rows,
+            "work_title": certificate.work_title,
+            "work_description": certificate.work_description,
+            "warranty_months": certificate.warranty_months,
+            "warranty_statement": certificate.warranty_statement
+            or certificate.build_default_warranty_statement(),
+            "signatory_name": signatory_name,
+            "signatory_phone": signatory_phone,
+            "signatory_email": signatory_email,
+            "entity_short_name": entity.name if entity else "",
+            "notes": certificate.notes,
         }
