@@ -41,16 +41,45 @@ class ImportService:
         raise ValueError("Unsupported import type.")
 
     @staticmethod
-    def preview(uploaded_file, import_type, sheet_name=None):
+    def _apply_row_range(rows, row_start=None, row_end=None):
+        """Select a 1-based inclusive slice of parsed valid rows."""
+        if row_start in (None, "") and row_end in (None, ""):
+            return rows, None
+
+        total = len(rows)
+        start = int(row_start) if row_start not in (None, "") else 1
+        end = int(row_end) if row_end not in (None, "") else total
+
+        if start < 1:
+            raise ValueError("Row range start must be at least 1.")
+        if end < start:
+            raise ValueError("Row range end must be greater than or equal to start.")
+
+        selected = rows[start - 1 : end]
+        return selected, {
+            "start": start,
+            "end": end,
+            "selected": len(selected),
+            "total_available": total,
+        }
+
+    @staticmethod
+    def preview(uploaded_file, import_type, sheet_name=None, row_start=None, row_end=None):
         rows, errors, meta = ImportService._parse(uploaded_file, import_type, sheet_name)
+        total_valid_rows = len(rows)
+        row_range = None
+        if import_type == "payments":
+            rows, row_range = ImportService._apply_row_range(rows, row_start, row_end)
         return {
             "import_type": import_type,
             "sheet": meta["sheet"],
             "header_row": meta["header_row"],
             "headers_found": meta["headers_found"],
             "available_sheets": meta["available_sheets"],
-            "total_rows": len(rows) + len(errors),
+            "total_rows": total_valid_rows + len(errors),
+            "total_valid_rows": total_valid_rows,
             "valid_rows": len(rows),
+            "row_range": row_range,
             "error_count": len(errors),
             "errors": errors[:50],
             "preview": rows[:50],
@@ -58,11 +87,13 @@ class ImportService:
 
     @staticmethod
     @transaction.atomic
-    def execute(tenant, user, uploaded_file, import_type, sheet_name=None):
+    def execute(tenant, user, uploaded_file, import_type, sheet_name=None, row_start=None, row_end=None):
         if import_type == "customers":
             return ImportService._import_customers(tenant, uploaded_file, sheet_name)
         if import_type == "payments":
-            return ImportService._import_payments(tenant, user, uploaded_file, sheet_name)
+            return ImportService._import_payments(
+                tenant, user, uploaded_file, sheet_name, row_start, row_end
+            )
         raise ValueError("Unsupported import type.")
 
     @staticmethod
@@ -119,8 +150,9 @@ class ImportService:
         }
 
     @staticmethod
-    def _import_payments(tenant, user, uploaded_file, sheet_name=None):
+    def _import_payments(tenant, user, uploaded_file, sheet_name=None, row_start=None, row_end=None):
         rows, errors, meta = parse_payment_rows(uploaded_file, sheet_name)
+        rows, row_range = ImportService._apply_row_range(rows, row_start, row_end)
         entity = CompanyEntity.objects.filter(tenant=tenant, is_default=True).first()
         if not entity:
             entity = CompanyEntity.objects.filter(tenant=tenant).first()
@@ -209,6 +241,7 @@ class ImportService:
         return {
             "import_type": "payments",
             "sheet": meta["sheet"],
+            "row_range": row_range,
             "customers_created": customers_created,
             "invoices_created": invoices_created,
             "payments_created": payments_created,

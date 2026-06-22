@@ -21,7 +21,14 @@ class ImportPreviewView(APIView):
         if import_type not in ("customers", "payments"):
             return Response({"detail": "type must be customers or payments."}, status=400)
         sheet_name = request.data.get("sheet") or None
-        result = ImportService.preview(uploaded_file, import_type, sheet_name)
+        row_start = request.data.get("row_start")
+        row_end = request.data.get("row_end")
+        try:
+            result = ImportService.preview(
+                uploaded_file, import_type, sheet_name, row_start, row_end
+            )
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=400)
         return Response(result)
 
 
@@ -38,11 +45,18 @@ class ImportExecuteView(APIView):
         if import_type not in ("customers", "payments"):
             return Response({"detail": "type must be customers or payments."}, status=400)
         sheet_name = request.data.get("sheet") or None
-        result = ImportService.execute(
-            tenant=request.user.tenant,
-            user=request.user,
-            uploaded_file=uploaded_file,
-            import_type=import_type,
-            sheet_name=sheet_name,
-        )
+        row_start = request.data.get("row_start")
+        row_end = request.data.get("row_end")
+        try:
+            result = ImportService.execute(
+                tenant=request.user.tenant,
+                user=request.user,
+                uploaded_file=uploaded_file,
+                import_type=import_type,
+                sheet_name=sheet_name,
+                row_start=row_start,
+                row_end=row_end,
+            )
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=400)
         return Response(result, status=status.HTTP_201_CREATED)
